@@ -10,7 +10,7 @@ Flyous = (function() {
 					sprite.frame = 0;
 				}
 
-				sprite.div.style.backgroundPositionX = -(sprite.frame * sprite.width) + 'px';
+				sprite.div.style.backgroundPosition = -(sprite.frame * sprite.width) + 'px' + ' 0';
 
 				sprite.timer = setTimeout(animation, latency);
 			},
@@ -41,6 +41,7 @@ Flyous = (function() {
 				document.documentElement.onmousemove = move;
 
 				sprite.timer = setTimeout(animation, latency);
+				window.anim = animation;
 			};
 
 			init = function(obj) {
