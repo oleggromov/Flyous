@@ -41,6 +41,7 @@ Flyous = (function() {
 				document.documentElement.onmousemove = move;
 
 				sprite.timer = setTimeout(animation, latency);
+				window.anim = animation;
 			};
 
 			init = function(obj) {
