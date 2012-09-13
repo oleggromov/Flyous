@@ -1,3 +1,9 @@
+/* 
+ * Flyous - a simple script which draws animated image near mouse cursor.
+ * written by Oleg Gromov, 2012
+ * http://oleggromov.com
+ * mail@oleggromov.com
+ */
 Flyous = (function() {
 	// Adds temporary event listener to get initial mouse coords.
 	var handleCursor = function(e) {

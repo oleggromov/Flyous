@@ -6,7 +6,7 @@ To display animation near the cursor use
 ```javascript
 Flyous.start(options);
 ```
-where required are sprite **image path, width and height:**
+where required ones are sprite **image path, width and height:**
 ```javascript
 Flyous.start({
 	image: 'dummy.png',
@@ -14,7 +14,7 @@ Flyous.start({
 	height: 15
 });
 ```
-Consider that Flyous expects width and height of *one frame*, not the whole script.
+Consider that Flyous expects width and height of *one frame*, not the whole image.
 Frames should be placed horizontally in the sprite.
 
 You may also use optional **fps** parameter to make animation faster and smoother or slower:
@@ -26,7 +26,7 @@ Flyous.start({
 	fps: 20
 });
 ```
-Its default value equals 10.
+Default fps value equals 10.
 
 Use stop method to stop animation (Cap!):
 ```javascript
