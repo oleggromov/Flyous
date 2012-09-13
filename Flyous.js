@@ -6,17 +6,17 @@
  */
 Flyous = (function() {
 	// Adds temporary event listener to get initial mouse coords.
-	var handleCursor = function(e) {
-		initX = e.clientX;
-		initY = e.clientY;
-	};
+	var initX, initY,
+		handleCursor = function(e) {
+			initX = e.clientX;
+			initY = e.clientY;
+		};
 	document.addEventListener('mousemove', handleCursor, false);
 
 	var divId = 'Flyous',
 			fps = 10,
 			latency = null,
 			sprite,
-			initX, initY,
 
 			createDomElement = function() {
 				sprite.div = document.createElement('div');
