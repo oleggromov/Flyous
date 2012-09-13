@@ -35,3 +35,10 @@ Flyous.stop();
 
 Flyous can have only one instance because the cursor is also only one ;)
 Have fun!
+
+
+## TODO
+* Add some checks for object types and properties.
+* Check and fix compatibility with major browsers.
+* Disable scrollbars when div moves out of screen.
+* Make z-index changeable.
