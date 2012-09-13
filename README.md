@@ -14,7 +14,6 @@ Flyous.start({
 	height: 15
 });
 ```
-
 Consider that Flyous expects width and height of *one frame*, not the whole script.
 Frames should be placed horizontally in the sprite.
 
@@ -27,7 +26,12 @@ Flyous.start({
 	fps: 20
 });
 ```
-
 Its default value equals 10.
 
+Use stop method to stop animation (Cap!):
+```javascript
+Flyous.stop();
+```
+
+Flyous can have only one instance because the cursor is also only one ;)
 Have fun!
