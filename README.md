@@ -18,13 +18,13 @@ where required are sprite image path, width and height:
 Consider that Flyous expects width and height of *one frame*, not the whole script.
 Frames should be placed horizontally in the sprite.
 
-You may also use optional fps parameter to make animation faster and smoother or slower:
+You may also use optional **fps** parameter to make animation faster and smoother or slower:
 ```javascript
 	Flyous.start({
 		image: 'dummy.png',
 		width: 15,
 		height: 15,
-		**fps: 20**
+		fps: 20
 	});
 ```
 
