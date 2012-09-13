@@ -6,7 +6,7 @@ To display animation near the cursor use
 ```javascript
 	Flyous.start(options);
 ```
-where required are sprite image path, width and height:
+where required are sprite **image path, width and height:**
 ```javascript
 	Flyous.start({
 		image: 'dummy.png',
