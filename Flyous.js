@@ -1,8 +1,16 @@
 Flyous = (function() {
+	// Adds temporary event listener to get initial mouse coords.
+	var handleCursor = function(e) {
+		initX = e.clientX;
+		initY = e.clientY;
+	};
+	document.addEventListener('mousemove', handleCursor, false);
+
 	var divId = 'Flyous',
 			fps = 10,
 			latency = null,
 			sprite,
+			initX, initY,
 
 			createDomElement = function() {
 				sprite.div = document.createElement('div');
@@ -10,8 +18,8 @@ Flyous = (function() {
 					sprite.div.style.width = sprite.width + 'px';
 					sprite.div.style.height = sprite.height + 'px';
 					sprite.div.style.position = 'absolute';
-					sprite.div.style.left = '-10000px';
-					sprite.div.style.top = '-10000px';
+					sprite.div.style.left = initX ? initX + sprite.width + 'px' : '-10000px';
+					sprite.div.style.top = initY ? initY + sprite.height + 'px' : '-10000px';
 					sprite.div.style.zIndex = '10000';
 					sprite.div.style.backgroundImage = 'url(' + sprite.image + ')';
 
@@ -49,12 +57,14 @@ Flyous = (function() {
 				createDomElement();
 
 				// Starts listening for mouse moves.
-				// TODO replace with eventListenter.
-				document.documentElement.onmousemove = move;
-				document.documentElement.onmouseover = show;
-				document.documentElement.onmouseout = hide;
+				document.addEventListener('mousemove', move, false);
+				document.addEventListener('mouseover', show, false);
+				document.addEventListener('mouseout', hide, false);
 				// Starts animation of sprite.
 				sprite.timer = setTimeout(animation, latency);
+
+				// Removes tracking while animating.
+				document.removeEventListener('mousemove', handleCursor);
 			},
 
 			init = function(obj) {
@@ -82,10 +92,13 @@ Flyous = (function() {
 			},
 
 			remove = function() {
-				// Remove event handlers.
+				// Stop handling events.
 				clearTimeout(sprite.timer);
-				// TODO replace with eventListenter.
-				document.documentElement.onmousemove = null;
+				document.removeEventListener('mousemove', move);
+				document.removeEventListener('mouseover', show);
+				document.removeEventListener('mouseout', hide);
+				// Start tracking mouse movement while inactive.
+				document.addEventListener('mousemove', handleCursor, false);
 
 				delete sprite.img;
 				document.body.removeChild(sprite.div);
@@ -97,7 +110,11 @@ Flyous = (function() {
 	// Returns public functions.
 	return {
 		start: function(sprite) {
-			return init(sprite);
+			if (typeof sprite !== 'object') {
+				return false;
+			} else {
+				return init(sprite);	
+			}
 		},
 		stop: function() {
 			return remove();
