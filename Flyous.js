@@ -1,119 +1,166 @@
 /* 
- * Flyous - a simple script which draws animated image near mouse cursor.
- * written by Oleg Gromov, 2012
+ * Flyous v1.0 
+ * Simple script that draws an animated image near mouse cursor.
+ * https://github.com/oleggromov/Flyous
+ *
+ * Copyright 2012 Oleg Gromov
  * http://oleggromov.com
  * mail@oleggromov.com
+ *
+ * Released under the MIT license
+ * https://github.com/oleggromov/Flyous/blob/master/LICENSE
  */
 Flyous = (function() {
-	// Adds temporary event listener to get initial mouse coords.
-	var initX, initY,
+	"use strict";
+	// Initializaion minimum.
+	var doc = document,
+		initX, initY,
 		handleCursor = function(e) {
 			initX = e.clientX;
 			initY = e.clientY;
+		},
+		handle = function(name, callback) {
+			if (doc.addEventListener) {
+				doc.addEventListener(name, callback, false);
+			} else if (doc.attachEvent) {
+				doc.attachEvent('on'+name, callback);
+			}
+		},
+		stopHandling = function(name, callback) {
+			if (doc.removeEventListener) {
+				doc.removeEventListener(name, callback);
+			} else if (doc.detachEvent) {
+				doc.detachEvent('on'+name, callback);
+			}
 		};
-	document.addEventListener('mousemove', handleCursor, false);
+	// Adds temporary event listener to get initial mouse coords.
+	handle('mousemove', handleCursor);
 
+	// Main logic.
 	var divId = 'Flyous',
-			fps = 10,
-			latency = null,
-			sprite,
+		fps = 10,
+		latency = null,
+		sprite,
+		createDomElement = function() {
+			var sdiv;
 
-			createDomElement = function() {
-				sprite.div = document.createElement('div');
-					sprite.div.id = divId;
-					sprite.div.style.width = sprite.width + 'px';
-					sprite.div.style.height = sprite.height + 'px';
-					sprite.div.style.position = 'absolute';
-					sprite.div.style.left = initX ? initX + sprite.width + 'px' : '-10000px';
-					sprite.div.style.top = initY ? initY + sprite.height + 'px' : '-10000px';
-					sprite.div.style.zIndex = '10000';
-					sprite.div.style.backgroundImage = 'url(' + sprite.image + ')';
+			sprite.div = doc.createElement('div');
+			sdiv = sprite.div;
+				sdiv.id = divId;
+				sdiv.style.width = sprite.width + 'px';
+				sdiv.style.height = sprite.height + 'px';
+				sdiv.style.position = 'absolute';
+				sdiv.style.left = initX ? initX + sprite.dx + 'px' : '-10000px';
+				sdiv.style.top = initY ? initY + sprite.dy + 'px' : '-10000px';
+				sdiv.style.zIndex = sprite.zIndex;
+				sdiv.style.backgroundImage = 'url(' + sprite.image + ')';
 
-				document.body.appendChild(sprite.div);
-			},
+			doc.body.appendChild(sdiv);
+		},
+		animation = function() {
+			sprite.frame += 1;
+			if (sprite.frame >= sprite.frames) {
+				sprite.frame = 0;
+			}
 
-			animation = function() {
-				sprite.frame += 1;
-				if (sprite.frame >= sprite.frames) {
-					sprite.frame = 0;
-				}
+			sprite.div.style.backgroundPosition = -(sprite.frame * sprite.width) + 'px' + ' 0';
 
-				sprite.div.style.backgroundPosition = -(sprite.frame * sprite.width) + 'px' + ' 0';
+			sprite.timer = setTimeout(animation, latency);
+		},
+		move = function(e) {
+			var win = window,
+				wwidth = win.innerWidth,
+				wheight = win.innerHeight,
+				sdiv = sprite.div,
+				swidth = sprite.width,
+				sheight = sprite.height,
+				outX, outY,
+				left = e.clientX + sprite.dx,
+				top = e.clientY + sprite.dy;
 
-				sprite.timer = setTimeout(animation, latency);
-			},
+			// TODO IE doesn't know anything about window.innerWidth/innerHeight.
+			if (typeof wwidth === 'undefined' || typeof wheight === 'undefined') {
+				wwidth = wheight = 0;
+			}
 
-			move = function(e) {
-				sprite.div.style.left = e.clientX + sprite.width+ 'px';
-				sprite.div.style.top = e.clientY + sprite.height + 'px';	
-			},
+			// If image moves out of screen;
+			outX = left + swidth - wwidth;
+			outY = top + sheight - wheight;
+			if (outX > 0) {
+				left -= outX;
+			}
+			if (outY > 0) {
+				top -= outY;
+			}
 
-			show = function(e) {
-				sprite.div.style.display= 'block';
-				move(e);
-			},
+			sdiv.style.left = left + 'px';
+			sdiv.style.top = top + 'px';
+		},
+		show = function(e) {
+			sprite.div.style.display= 'block';
+			move(e);
+		},
+		hide = function(e) {
+			sprite.div.style.display= 'none';
+		},
+		// Runs when sprite finishes loading.
+		initSprite = function() {
+			sprite.frames = this.width / this.height;
+			createDomElement();
 
-			hide = function(e) {
-				sprite.div.style.display= 'none';
-			},
+			// Starts listening for mouse moves.
+			handle('mousemove', move);
+			handle('mouseover', show);
+			handle('mouseout', hide);
+			// Starts animation of sprite.
+			sprite.timer = setTimeout(animation, latency);
 
-			// Runs when sprite finishes loading.
-			initSprite = function() {
-				sprite.frames = this.width / this.height;
-				createDomElement();
-
-				// Starts listening for mouse moves.
-				document.addEventListener('mousemove', move, false);
-				document.addEventListener('mouseover', show, false);
-				document.addEventListener('mouseout', hide, false);
-				// Starts animation of sprite.
-				sprite.timer = setTimeout(animation, latency);
-
-				// Removes tracking while animating.
-				document.removeEventListener('mousemove', handleCursor);
-			},
-
-			init = function(obj) {
-				sprite = {
-					image: obj.image || false,
-					width: obj.width || 0,
-					height: obj.height || 0,
-					fps: obj.fps || fps,
-					frames: 0,
-					frame: 0,
-					img: null
-				};
-
-				if (!sprite.image) {
-					return false;
-				}
-
-				sprite.img = new Image();
-					sprite.img.onload = initSprite;
-					sprite.img.src = sprite.image;
-
-				latency = 1000 / sprite.fps;
-
-				return true;
-			},
-
-			remove = function() {
-				// Stop handling events.
-				clearTimeout(sprite.timer);
-				document.removeEventListener('mousemove', move);
-				document.removeEventListener('mouseover', show);
-				document.removeEventListener('mouseout', hide);
-				// Start tracking mouse movement while inactive.
-				document.addEventListener('mousemove', handleCursor, false);
-
-				delete sprite.img;
-				document.body.removeChild(sprite.div);
-				sprite = null;
-
-				return true;
+			// Removes tracking while animating.
+			stopHandling('mousemove', handleCursor);
+		},
+		init = function(obj) {
+			sprite = {
+				image: obj.image || false,
+				width: obj.width || 0,
+				height: obj.height || 0,
+				fps: obj.fps || fps,
+				zIndex: obj.zIndex || 10000,
+				dx: obj.distanceX || obj.width,
+				dy: obj.distanceY || obj.height,
+				frames: 0,
+				frame: 0,
+				img: null
 			};
 
-	// Returns public functions.
+			if (!sprite.image) {
+				return false;
+			}
+
+			sprite.img = new Image();
+				sprite.img.onload = initSprite;
+				sprite.img.src = sprite.image;
+
+			latency = 1000 / sprite.fps;
+
+			return true;
+		},
+		remove = function() {
+			// Stop handling events.
+			clearTimeout(sprite.timer);
+			stopHandling('mousemove', move);
+			stopHandling('mouseover', show);
+			stopHandling('mouseout', hide);
+			// Start tracking mouse movement while inactive.
+			handle('mousemove', handleCursor);
+
+			delete sprite.img;
+			doc.body.removeChild(sprite.div);
+			sprite = null;
+
+			return true;
+		};
+
+	// Public interface.
 	return {
 		start: function(sprite) {
 			if (typeof sprite !== 'object') {
